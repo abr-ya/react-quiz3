@@ -1,15 +1,32 @@
 import React, {Component} from 'react';
 import classes from './MenuMain.module.css';
+import {NavLink} from 'react-router-dom';
 import Backdrop from '../../UI/Backdrop/Backdrop';
 
-const links = [1,2,3]
+const links = [
+    {to: '/', label: 'Список', exact: true},
+    {to: '/auth', label: 'Авторизация', exact: false},
+    {to: '/quiz-creator', label: 'Создать тест', exact: false},
+];
 
 class MenuMain extends Component {
+    // закрываем меню при клике по ссылке - копируем с клика по "пустому месту"
+    clickHandler = () => {
+        this.props.backdropClick();
+    }
+
     renderLinks() {
         return links.map((link, index) => {
             return (
                 <li key={index}>
-                    <a href="#">Link {link}</a>
+                    <NavLink
+                        to={link.to}
+                        exact={link.exact}
+                        activeClassName={classes.active}
+                        onClick={this.clickHandler}
+                    >
+                        {link.label}
+                    </NavLink>
                 </li>
             )
         })
