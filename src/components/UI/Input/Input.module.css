@@ -1,0 +1,33 @@
+.Input {
+    margin-bottom: 15px;
+}
+
+.Input label {
+    margin-bottom: 3px;
+    padding: 0;
+    display: block;
+    font-weight: bold;
+}
+
+.Input.Invalid label {
+    color: #ff0011;
+}
+
+.Input input {
+    display: block;
+    box-sizing: border-box;
+    border: 1px solid #bebebe;
+    padding: 5px;
+    margin-bottom: 5px;
+    width: 100%;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.Error {
+    color: #ff0011;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
