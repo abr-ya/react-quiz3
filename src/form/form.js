@@ -7,3 +7,32 @@ export function createControl(config, validation) {
         value: '',
     }
 }
+
+export function validate(value, validation = null) {
+    if (!validation) {
+        return true;
+    }
+
+    let isValid = true;
+
+    if (validation.required) {
+        isValid = value.trim() !== '' && isValid; // вторая часть - для универсальности, избыточна
+    }
+
+    // здесь можно добавить правил валидации
+
+    return isValid;
+}
+
+export function validateForm(formControls) {
+    let isFormValid = true;
+
+    for (let control in formControls) {
+        // проверяем без вложенности
+        if (formControls.hasOwnProperty(control)) {
+            isFormValid = formControls[control].valid && isFormValid;
+        }
+    }
+
+    return isFormValid;
+}
