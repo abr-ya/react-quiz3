@@ -18,7 +18,7 @@ export default class QuizList extends Component {
     }
 
     componentDidMount() {
-        axios.get('https://react-quiz-3460b.firebaseio.com/quiz.json').then(response => {
+        axios.get('hhttps://react-quiz-f1eb1.firebaseio.com/quiz.json').then(response => {
             console.log(response);
         });
     }
