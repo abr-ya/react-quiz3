@@ -4,7 +4,7 @@ import Button from '../../components/UI/Button/Button';
 import Input from '../../components/UI/Input/Input';
 import Select from '../../components/UI/Select/Select';
 import {createControl, validate, validateForm} from '../../form/form';
-import axios from 'axios';
+import axios from '../../axios/axios';
 
 // ускоряем подготовку вариантов ответа
 // правильно ли, что всегда обязательно 4 варианта ответа?
@@ -85,7 +85,7 @@ export default class QuizCreator extends Component {
 
         try {
             // асинхронное событие будет тут
-            const response = await axios.post('https://react-quiz-f1eb1.firebaseio.com/quizes.json', this.state.quiz);
+            const response = await axios.post('quizes.json', this.state.quiz);
             console.log('Тест сохранен с ключом: ', response.data.name);
 
             // ответ получен - обнуляем State
