@@ -4,7 +4,8 @@ import Button from '../../components/UI/Button/Button';
 import Input from '../../components/UI/Input/Input';
 import Select from '../../components/UI/Select/Select';
 import {createControl, validate, validateForm} from '../../form/form';
-import axios from '../../axios/axios';
+import {connect} from 'react-redux';
+import {createQuizQuestion, finishCreateQuiz} from '../../store/actions/create';
 
 // ускоряем подготовку вариантов ответа
 // правильно ли, что всегда обязательно 4 варианта ответа?
@@ -31,9 +32,8 @@ function createFormControls() {
     }
 }
 
-export default class QuizCreator extends Component {
+class QuizCreator extends Component {
     state = {
-        quiz: [],
         isFormValid: false,
         rightAnswerId: 1,
         formControls: createFormControls(),
@@ -47,15 +47,12 @@ export default class QuizCreator extends Component {
     addQuestionHandler = e => {
         e.preventDefault();
 
-        const quiz = [...this.state.quiz];
-        const index = quiz.length + 1;
-
         // деструктуризация чтобы избежать массивности
-        const {option1, option2, option3, option4} = this.state.formControls;
+        const {question, option1, option2, option3, option4} = this.state.formControls;
 
         const questionItem = {
-            id: index,
-            question: this.state.formControls.question.value,
+            id: this.props.quiz.length + 1,
+            question: question.value,
             rightAnswerId: this.state.rightAnswerId,
             answers: [
                 {text: option1.value, id: option1.id},
@@ -65,10 +62,11 @@ export default class QuizCreator extends Component {
             ]
         }
 
-        quiz.push(questionItem);
+        // записываем вопрос в Redux Store
+        this.props.createQuizQuestion(questionItem);
 
+        // локальные изменения оставляем в локальном стейте
         this.setState({
-            quiz,
             isFormValid: false,
             rightAnswerId: 1,
             formControls: createFormControls(),
@@ -77,27 +75,20 @@ export default class QuizCreator extends Component {
 
     // обработчик создания теста
     // делаем функцию асинхронной
-    createQuizHandler = async(e) => {
+    createQuizHandler = e => {
         e.preventDefault();
 
         // получившийся тест
         //console.log(this.state.quiz);        
 
-        try {
-            // асинхронное событие будет тут
-            const response = await axios.post('quizes.json', this.state.quiz);
-            console.log('Тест сохранен с ключом: ', response.data.name);
-
-            // ответ получен - обнуляем State
-            this.setState({
-                quiz: [],
-                isFormValid: false,
-                rightAnswerId: 1,
-                formControls: createFormControls(),
-            })
-        } catch (error) {
-            console.log(error);
-        }
+        // ответ получен - обнуляем State
+        this.setState({
+            quiz: [],
+            isFormValid: false,
+            rightAnswerId: 1,
+            formControls: createFormControls(),
+        })
+        this.props.finishCreateQuiz();
     }
 
     changeHandler = (value, controlName) => {
@@ -182,7 +173,7 @@ export default class QuizCreator extends Component {
                         <Button
                             type="success"
                             onClick={this.createQuizHandler}
-                            disabled={this.state.quiz.length === 0}                 
+                            disabled={this.props.quiz.length === 0}                 
                         >
                             Создать тест
                         </Button>
@@ -193,3 +184,21 @@ export default class QuizCreator extends Component {
     }    
 }
 
+
+function mapStateToProps(state) {
+    return {
+        quiz: state.create.quiz
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        createQuizQuestion: item => dispatch(createQuizQuestion(item)),
+        finishCreateQuiz: () => dispatch(finishCreateQuiz()),
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(QuizCreator);
