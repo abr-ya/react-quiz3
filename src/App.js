@@ -1,25 +1,65 @@
 import React, { Component } from 'react';
 import Layout from './hoc/Layout/Layout';
-import {Route, Switch} from 'react-router-dom';
+import {Route, Switch, Redirect, withRouter} from 'react-router-dom';
 import Auth from './containers/Auth/Auth';
 import Quiz from './containers/Quiz/Quiz';
 import QuizCreator from './containers/QuizCreator/QuizCreator';
 import QuizList from './containers/QuizList/QuizList';
+import Logout from './components/Logout/Logout';
+import {connect} from 'react-redux';
+import {autoLogin} from './store/actions/auth';
 
 
 class App extends Component {
+  componentDidMount() {
+    this.props.autoLogin();
+  }
+
   render() {
-    return (
-      <Layout>
+    // роуты по умолчанию - неавторизованный пользователь
+    let routes = (
+      <Switch>
+        <Route path="/auth" component={Auth} />
+        <Route path="/quiz/:id" component={Quiz} />
+        <Route path="/" exact component={QuizList} />
+        <Redirect to="/" />
+      </Switch>      
+    )
+
+    // если пользователь в системе
+    if (this.props.isAuth) {
+      routes = (
         <Switch>
-          <Route path="/auth" component={Auth} key={11} />
           <Route path="/quiz-creator" component={QuizCreator} />
           <Route path="/quiz/:id" component={Quiz} />
-          <Route path="/" component={QuizList} />
-        </Switch>
+          <Route path="/logout" component={Logout} />          
+          <Route path="/" exact component={QuizList} />
+          <Redirect to="/" />
+        </Switch>      
+      )      
+    }
+
+    return (
+      <Layout>
+        {routes}
       </Layout>
     );
   }
 }
 
-export default App;
+function mapStateToProps(state) {
+  return {
+    isAuth: !!state.auth.token
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    autoLogin: () => dispatch(autoLogin())
+  }
+}
+
+export default withRouter(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App));

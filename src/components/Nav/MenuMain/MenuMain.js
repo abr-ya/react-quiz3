@@ -2,12 +2,8 @@ import React, {Component} from 'react';
 import classes from './MenuMain.module.css';
 import {NavLink} from 'react-router-dom';
 import Backdrop from '../../UI/Backdrop/Backdrop';
+import {connect} from 'react-redux';
 
-const links = [
-    {to: '/', label: 'Список тестов', exact: true},
-    {to: '/auth', label: 'Авторизация', exact: false},
-    {to: '/quiz-creator', label: 'Создать тест', exact: false},
-];
 
 class MenuMain extends Component {
     // закрываем меню при клике по ссылке - копируем с клика по "пустому месту"
@@ -15,7 +11,7 @@ class MenuMain extends Component {
         this.props.backdropClick();
     }
 
-    renderLinks() {
+    renderLinks(links) {
         return links.map((link, index) => {
             return (
                 <li key={index}>
@@ -39,11 +35,24 @@ class MenuMain extends Component {
             cls.push(classes.Close);
         }
 
+        // ссылки, общие для всех пользователей
+        const links = [
+            {to: '/', label: 'Список тестов', exact: true},   
+        ];
+
+        // если пользователь в системе
+        if (this.props.isAuth) {
+            links.push({to: '/quiz-creator', label: 'Создать тест', exact: false});
+            links.push({to: '/logout', label: 'Выйти', exact: false});
+        } else {
+            links.push({to: '/auth', label: 'Авторизация', exact: false});
+        }
+
         return (
             <React.Fragment>
                 <nav className={cls.join(' ')}>
                     <ul>
-                        { this.renderLinks() }
+                        { this.renderLinks(links) }
                     </ul>
                 </nav>
                 { this.props.isOpen ? <Backdrop
@@ -56,4 +65,13 @@ class MenuMain extends Component {
     }
 }
 
-export default MenuMain;
+function mapStateToProps(state) {
+    return {
+      isAuth: !!state.auth.token
+    }
+  }
+
+export default connect(
+    mapStateToProps,
+    null
+)(MenuMain);
